@@ -1,0 +1,114 @@
+#!/bin/bash
+
+PS1="\[\e[34m\]\u@\h\[\e[0m\]: \w\n(\!)\$> "
+HISTTIMEFORMAT="%F %T "
+HOSTFILE="$HOME/.hosts"
+
+complete -F _user_at_host ssh
+
+toolbox()
+{
+    echo "push dir_name     => ajoute dir_name dans la liste"
+    echo "pop 3             => retire le 3eme dir de la liste"
+    echo "up 4              => remonte de 4 répertoire"
+    echo "zsize file.gz     => taille décompressée de file.gz"
+    echo "zerodir dir_name  => trouve les répertoires vides dans dir_name"
+    echo "zerofile dir_name => trouve les fichiers vides dans dir_name"
+    echo "zdu dir_name      => donne la taille totale des fichiers de dir_name"
+}
+push()
+{
+   if [ $# -eq 0 ]
+      then dirs -v; return
+   fi
+   local dest="$1"
+   if ! [ -d "$dest" ]
+      then echo "$dest introuvable" > /dev/stderr
+      return
+   fi
+   pushd -n "$dest" > /dev/null
+   dirs -v
+}
+pop()
+{
+   if [ $# -eq 0 ]
+      then dirs -v; return
+   fi
+   local number="$1"
+   case "$number" in
+      +([0-9])) popd -n +"$number" > /dev/null ;;
+             *) echo "usage: pop {number}" > /dev/stderr ;;
+   esac
+   dirs -v
+}
+up()
+{
+   local number="$1"
+   case "$number" in
+      +([0-9])) for((i=0;i<number;i++))
+                do
+                   cd .. || return
+                done ;;
+             *) echo "usage: up {number}" ;;
+   esac
+}
+zsize()
+{
+   local file="$1"
+   if ! [ -f "$file" ]
+      then echo "$file is not a file"; return
+   fi
+   local filetype
+   filetype="$(file -b "$file" | cut -d , -f1)"
+   case "$filetype" in 
+      "gzip compressed data")
+         echo "$(gzip -l "$file" | awk 'NR==2{print $2}') $file" ;;
+      "Zip archive data")
+         echo "$(zipinfo -t "$file" | cut -d ' ' -f3) $file" ;;
+      *) stat -c '%s %n' "$file" ;;
+   esac
+}
+zerodir()
+{
+   local dir='.'
+   if [ $# -ne 0 ]
+      then dir="$1"
+   fi
+   if ! [ -d "$dir" ]
+      then echo "$dir is not a directory"; return
+   fi
+   find "$dir" -type d | while read -r line
+   do
+      zdu "$line" | sed -n '/^0 /p'
+   done
+}
+alias 0dir=zerodir
+zerofile()
+{
+   local dir='.'
+   if [ $# -ne 0 ]
+      then dir="$1"
+   fi
+   if ! [ -d "$dir" ]
+      then echo "$dir is not a directory"; return
+   fi
+   find "$dir" -type f | while read -r line
+   do
+      zsize "$line" | sed -n '/^0 /p'
+   done
+}
+alias 0file=zerofile
+zdu()
+{
+   local dir='.'
+   if [ $# -ne 0 ]
+      then dir="$1"
+   fi
+   if ! [ -d "$dir" ]
+      then echo "$dir is not a directory"; return
+   fi
+   echo "$( (find "$dir" -type f | while read -r line
+   do
+      zsize "$line"
+   done ) | awk '{total+=$1}END{print total}' ) $dir"
+}
