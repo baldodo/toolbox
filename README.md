@@ -30,5 +30,5 @@ In my opinion they dont do what their names might indicate (they do more).
 |**zerofile** dir_name |find zero-sized* file from dir_name
 |**zdu** dir_name      |show dir_name size (sum of file sizes)
 
-zero-sized: empty(raw size) or empty(uncompressed size)
+zero-sized: empty(raw size) or empty(uncompressed size). A directory which only contains empty files is considered zero-sized.
 
