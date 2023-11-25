@@ -6,6 +6,7 @@ A minimal set of bash functions and tools
 
 ```
   source toolbox
+  source pimp_my_prompt
 ```
 
 ## list of tools
@@ -32,3 +33,46 @@ In my opinion they dont do what their names might indicate (they do more).
 
 zero-sized: empty(raw size) or empty(uncompressed size). A directory which only contains empty files is considered zero-sized.
 
+### pimp_my_prompt
+
+A very basic way to customize your bash prompt.
+After sourcing the script the following commands are available :
+
+```
+pimp mono|color|amber|blue|green|gris|kipik|rose
+    some colors for the prompt
+
+pimp shortdir|longdir|shorterdir
+    short   = directory depth is 4
+    shorter = directory depth is 2
+    long    = directory depth is 8
+
+pimp initiale|fullname|name|firstname|quadname|noname
+    shorten username
+     username: peter.smith
+     fullname: peter.smith
+     initiale: p.smith
+         name: smith
+    firstname: peter
+     quadname: p.smi
+       noname: do not display username
+
+pimp host|hostname|host.domain|nohost
+   shorten hostname
+      full hostname: apollo-server-web.company.com
+        host.domain: apollo-server-web.company.com
+               host: web
+           hostname: apollo-server-web
+             nohost: hostname is not displayed
+
+pimp count|nonum
+   display or not the history number
+pimp noflag|fr|it
+   display french or italian flag
+pimp 1line|2line
+   prompt is 1line or 2line
+pimp git|nogit
+   git status is displayed or not
+pimp simple
+   very simple prompt
+```

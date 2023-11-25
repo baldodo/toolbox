@@ -1,0 +1,115 @@
+#!/bin/bash
+
+complete -W "amber color ppmono blue gris kipik vert rose shortdir shorterdir longdir fr it initiale more less ppname num nonum noppname noflag reset" pimp
+
+ppmachine="\h"
+ppwstr="\w"
+ppnumcmd=""
+ppcolor1="\[\e[38;5;242m\]" #grey par défaut
+ppcolor2="\[\e[34m\]"       #blue par défaut
+ppnoco="\[\e[0m\]"          #no color
+ppname="\u"
+ppstyle="2"
+ppgitb=""
+
+ppgit() 
+{
+   if ! [ -x /usr/bin/git ]
+      then return
+   fi
+   if git status &>/dev/null
+      then echo "($(git status -bs | sed -n '1s/.. //;1p'))"
+   fi
+}
+ppwhere() {
+   local p="$PWD"
+   if [ -w "$p" ] 
+      then p="$p·"
+   fi
+   p="${p/\/home\/$USER/~$USER}"
+   p="${p/\/media\/$USER/@usb}"
+   echo "$p"
+}
+
+pimp() {
+   for cmd in "$@"
+   do
+   case "$cmd" in
+          def*) PS1="[\u@\h \W]\\$ "; return ;;
+           simple) PS1="\u:\w \\$ "; return ;;
+             mono) ppmono="on"; ppicon="" ;;
+             1*|one*) ppstyle="1" ;;
+             2*|two*) ppstyle="2" ;;
+  blue|bleu|color) ppmono="off"
+                   ppcolor1="\[\e[38;5;242m\]"
+                   ppcolor2="\[\e[34m\]" ;;
+              fr*) ppicon="\[\e[34m\]█\[\e[97m\]█\[\e[31m\]█" ;;
+              it*) ppicon="\[\e[32m\]█\[\e[97m\]█\[\e[31m\]█" ;;
+           noflag) ppicon="" ;;
+            amber) ppmono="off"; ppcolor1="\[\e[38;5;94m\]"
+                   ppcolor2="\[\e[38;5;130m\]" ;;
+   grey|gris|gray) ppmono="off"; ppcolor1="\[\e[38;5;242m\]"
+                   ppcolor2="\[\e[38;5;245m\]" ;;
+       teal|turq*) ppmono="off"; ppcolor2="\[\e[36m\]"
+                   ppcolor1="\[\e[38;5;24m\]" ;;
+       vert|green) ppmono="off"; ppcolor1="\[\e[38;5;22m\]"
+                   ppcolor2="\[\e[38;5;28m\]" ;;
+            kipik) ppmono="off"; ppcolor1="\[\e[4;93m\]"
+                   ppcolor2="\[\e[1;38;5;214m\]" ;;
+             rose) ppmono="off"; ppcolor1="\[\e[35m\]"
+                   ppcolor2="\[\e[38;5;225m\]" ;;
+             host) ppmachine="$(echo "$HOSTNAME" | sed 's/\..\+//;s/.\+-//')" ;;
+             hostname) ppmachine="\h" ;;
+             *domain) ppmachine="\H" ;;
+             nohost) ppmachine="" ;;
+           shortdir) export PROMPT_DIRTRIM=4 ;;
+         shorterdir) export PROMPT_DIRTRIM=2 ;;
+            longdir) export PROMPT_DIRTRIM=8 ;;
+             more) ppwstr="\$(ppwhere)" ;;
+             less) ppwstr="\w" ;;
+        count|nu*) ppnumcmd="(\!)" ;;
+            nonu*) ppnumcmd="" ;;
+            init*) ppname="$(echo "$USER" | sed 's/\(.\).\+\.\(.\+\)/\1.\2/')" ;;
+            c.bon|quad*) ppname="$(echo "$USER" | sed 's/\(.\).\+\.\(...\).\+/\1.\2/')" ;;
+           noname) ppname="" ;;
+         name|nom) ppname="$(echo "$USER" | sed 's/.\+\.//')" ;;
+    prenom|first*) ppname="$(echo "$USER" | sed 's/\..\+//')" ;;
+         fullname) ppname="\u" ;;
+            reset) ppmono="off"; 
+                   ppnumcmd=""; 
+                   ppicon=""; 
+                   ppwstr="\w"; 
+                   ppstyle="2";
+                   ppgitb="";
+                   PROMPT_DIRTRIM=8 ;; 
+             show) echo "PS1=\"$PS1\""; return ;;
+              git) ppgitb="\$(ppgit)" ;;
+            nogit) ppgitb="" ;;
+
+     *) echo "Usage: pimp mono|color|amber|blue|green|gris|kipik|rose"
+        echo "       pimp shortdir|longdir|shorterdir"
+        echo "       pimp more|less"
+        echo "       pimp initiale|fullname|name|firstname|quadname|noname"
+        echo "       pimp host|hostname|host.domain|nohost"
+        echo "       pimp count|nonum"
+        echo "       pimp noflag|fr|it" 
+        echo "       pimp 1line|2line" 
+        echo "       pimp git|nogit" 
+        echo "       pimp simple" 
+        echo "       pimp default" ;;
+   esac
+   if [ "$ppmono" = "on" ] 
+      then
+         case "$ppstyle" in
+            1) PS1="${ppname}@${ppmachine}[$ppwstr$ppnumcmd$ppgitb]\$ "; ppicon="" ;;
+            2) PS1="[$ppmachine] $ppwstr$ppgitb\n$ppname$ppnumcmd\$ "; ppicon=""  ;;
+         esac
+      else 
+         case "$ppstyle" in
+            2) PS1="$ppicon${ppcolor1}[$ppmachine]$ppnoco $ppwstr$ppcolor1$ppgitb\n$ppcolor2$ppname$ppnumcmd$ppnoco\$ " ;;
+            1) PS1="$ppicon$ppcolor2$ppname@$ppmachine${ppnoco}[$ppwstr$ppnumcmd$ppcolor1$ppgitb$ppnoco]\$ " 
+               PROMPT_DIRTRIM=2 ;;
+         esac
+   fi
+done
+}
