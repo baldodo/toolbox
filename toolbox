@@ -1,8 +1,9 @@
 #!/bin/bash
 
-PS1="\[\e[34m\]\u@\h\[\e[0m\]: \w\n(\!)\$> "
-HISTTIMEFORMAT="%F %T "
-HOSTFILE="$HOME/.hosts"
+# custom shell prompt, history date, hostfile ; uncomment to enable
+#    PS1="\[\e[34m\]\u@\h\[\e[0m\]: \w\n(\!)\$> "
+#    HISTTIMEFORMAT="%F %T "
+#    HOSTFILE="$HOME/.hosts"
 
 complete -F _user_at_host ssh
 
