@@ -91,9 +91,11 @@ pimp() {
             c.bon|quad*) ppname="$(echo "$USER" | sed 's/\(.\).\+\.\(...\).\+/\1.\2/')" ;;
            noname) ppname=""
                    ppuath ;;
-         name|nom) ppname="$(echo "$USER" | sed 's/.\+\.//')" 
+         name|nom) ppname="${USER/*./}" 
+                   #ppname="$(echo "$USER" | sed 's/.\+\.//')" 
                    ppuath ;;
-    prenom|first*) ppname="$(echo "$USER" | sed 's/\..\+//')" 
+    prenom|first*) ppname="${USER/.*/}"
+                   #ppname="$(echo "$USER" | sed 's/\..\+//')" 
                    ppuath ;;
          fullname) ppname="\u" 
                    ppuath ;;
