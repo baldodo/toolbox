@@ -1,0 +1,41 @@
+.TH zdu "1" "2023-11-29" "toolbox" "toolbox command"
+.br
+.SH NAME
+.PP
+zdu \- (toolbox) [g]Zip Disk Usage
+.SH SYNOPSIS
+.PP
+\fBzdu\fR [\fIdirname\fR]
+.SH DESCRIPTION
+.br
+.PP
+\fBzdu\fR donne la taille prise par le contenu du répertoire \fIdirname\fR (ou le répertoire courant par défaut). La commande additionne la taille \fIdécompressée\fR des fichiers contenus dans le répertoire \fIdirname\fR.
+.br
+.PP
+Les formats de fichiers compressés  pris en compte sont \fIgzip\fR et \fIzip\fR
+.SH EXEMPLE/TUTORIEL
+.br
+.EX
+$> ls -l mon_dossier
+
+-rw-rw-r--  dupont \fI 17\fR pi.txt
+-rw-rw-r--  dupont \fI 44\fR pi.txt.gz
+-rw-rw-r--  dupont \fI  0\fR vide
+-rw-rw-r--  dupont \fI 20\fR vide.gz
+-rw-rw-r--  dupont \fI196\fR vide.zip
+
+$> gzip -l pi.txt.gz
+   compressed   uncompressed  name
+           44             \fI17\fR  pi.txt
+
+$> zdu mon_dossier
+
+\fI34\fR mon_dossier/
+.EE
+.br
+.PP
+pi.txt et pi.txt.gz ont pour taille décompressée \fI17\fR ; 17+17=\fI34\fR
+.PP
+vide, vide.gz, vide.zip ont pour taille décompressée 0 ; 0+0+0=0 (ou la tête à totaux)
+.PP
+total= 34+0 = 34
