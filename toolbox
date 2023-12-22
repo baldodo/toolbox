@@ -6,6 +6,7 @@
 #    HOSTFILE="$HOME/.hosts"
 
 complete -F _user_at_host ssh
+shopt -s extglob
 
 toolbox()
 {
