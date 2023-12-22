@@ -9,9 +9,12 @@ complete -F _user_at_host ssh
 
 toolbox()
 {
+    echo "mkcd dir_name     => mkdir & cd"
     echo "push dir_name     => ajoute dir_name dans la liste"
     echo "pop 3             => retire le 3eme dir de la liste"
+    echo "up home           => remonte jusqu'à un répertoire home"
     echo "up 4              => remonte de 4 répertoire"
+    echo "down tmp          => descend au premier répertoire tmp"
     echo "zsize file.gz     => taille décompressée de file.gz"
     echo "zerodir dir_name  => trouve les répertoires vides dans dir_name"
     echo "zerofile dir_name => trouve les fichiers vides dans dir_name"
@@ -42,6 +45,21 @@ pop()
    esac
    dirs -v
 }
+
+upd()
+{
+   looked="$1"
+   local p base
+   p="$PWD"
+   base="${p/*\//}"
+   while [ "$base" != "$looked" ]
+   do
+      p=${p%\/*}
+      base="${p/*\//}"
+      [ -n "$base" ] || break
+   done
+   [ -n "$p" ] && cd "$p" || return
+}
 up()
 {
    local number="$1"
@@ -50,8 +68,16 @@ up()
                 do
                    cd .. || return
                 done ;;
-             *) echo "usage: up {number}" ;;
+             *) upd "$number" ;;
    esac
+}
+
+down()
+{
+   [ $# -ne 0 ] || return
+   found=$(find . -type d -name "$1" | head -1)
+   echo "$found"
+   [ -n "$found" ] && cd "$found" || return
 }
 zsize()
 {
@@ -112,4 +138,7 @@ zdu()
    do
       zsize "$line"
    done; echo 0 ) | awk '{total+=$1}END{print total}' ) $dir"
+}
+mkcd() {
+   mkdir -p "$1" && cd "$1" || return
 }
