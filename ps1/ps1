@@ -1,0 +1,37 @@
+export month=$(($(date +%m)))
+#export month=0
+
+txt_mon=' 👑⛄🍀󰪰🌺🎸🏖🏄🍇🎃👾🎄'
+txt_extra="${txt_mon:$month:1}"
+
+ppwhere()
+{
+   local p=$PWD
+   p=${p/\/home\/$USER/  }
+   echo -n $p
+}
+
+ppgit()
+{
+test -x /usr/bin/git || return
+local m="$(git status -bs 2>/dev/null | head -1)"
+test -n "$m"  || return
+m="${m/* /}"
+echo $'\ue0a0' "${m/...*/}"
+}
+
+col_user="\[\e[38;5;14;48;5;17m\]"
+col_tri="\[\e[38;5;17;48;5;26m\]"
+col_path="\[\e[38;5;14m\]"
+col_git="\[\e[38;5;238m\]"
+col_tri2="\[\e[38;5;26;40m\]"
+col_num="\[\e[38;5;238m\]"
+no_color="\[\e[0m\]"
+
+export selya="/mnt/c/Users/selya"
+txt_tri=$'\ue0b0'
+txt_git=$'\ue0a0'
+txt_user=$'\uf183'
+txt_user2=$'\uf1ae'
+txt_gt=$'\u2771 '
+PS1="${col_user}${txt_user} \u ${no_color}${col_tri}${txt_tri}${col_path} \$(ppwhere) ${col_git}\$(ppgit) ${col_tri2}${txt_tri}${no_color} ${txt_extra}\n${no_color}${col_num}(\!)${no_color}${txt_gt}"

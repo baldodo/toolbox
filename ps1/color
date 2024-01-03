@@ -1,0 +1,6 @@
+#!/bin/bash
+
+color()
+{
+echo -e "\e[48;5;$1m        \e[0m"
+}

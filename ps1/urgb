@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+
+from sys import argv
+
+def rgb_print(r,g,b):
+   l=round(0.299*r+0.587*g+0.114*b)
+   print('{:03d} R:{:3d} V:{:3d} B:{:3d}'.format(l,r,g,b))
+
+if len(argv)<2 :
+   print("Usage: urgb 0-255")
+   exit()
+
+b=int(argv[1])
+if b<8 :
+   r=b//4
+   b-=r*4
+   g=b//2
+   b-=g*2
+   r,b=b,r
+   rgb_print(r*128,g*128,b*128)
+elif b<16:
+   b-=8;
+   r=b//4
+   b-=r*4
+   g=b//2
+   b-=g*2
+   r,b=b,r
+   rgb_print(r*255,g*255,b*255)
+elif b<232 :
+   b-=16
+   r=b//36
+   b-=r*36
+   g=b//6
+   b-=g*6
+   rgb_print(r*51,g*51,b*51)
+else:
+   b-=232
+   bs=(b*2)//23
+   b*=11
+   b+=bs
+   l=b
+   rgb_print(b,b,b)
+
