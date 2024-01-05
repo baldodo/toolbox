@@ -76,9 +76,28 @@ up()
 down()
 {
    [ $# -ne 0 ] || return
-   found=$(find . -type d -name "$1" | head -1)
-   echo "$found"
-   [ -n "$found" ] && cd "$found" || return
+   item="$1"
+   local found=$(find . -type d -name "$item" 2>/dev/null)
+   local number=$(echo -n "$found" | nl | wc -l)
+   if [ $number -eq 0 ]
+   then echo "$item not found"
+   elif [ $number -eq 1 ]
+   then cd $(echo "$found" | sed -n "${number}p")
+   else
+      while true
+      do
+         echo "$found" | nl
+         read -p "? " answer
+         case "$answer" in
+             [1-9]) 
+               if [ "$answer" -le $number ]
+                  then cd $(echo "$found" | sed -n "${answer}p") || return
+                  break
+               fi ;;
+            *) echo "please enter a digit" ;;
+         esac
+      done
+   fi
 }
 zsize()
 {
