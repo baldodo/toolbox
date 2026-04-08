@@ -6,12 +6,16 @@
 #    HOSTFILE="$HOME/.hosts"
 
 complete -F _user_at_host ssh
+shopt -s extglob
 
 toolbox()
 {
+    echo "mkcd dir_name     => mkdir & cd"
     echo "push dir_name     => ajoute dir_name dans la liste"
     echo "pop 3             => retire le 3eme dir de la liste"
+    echo "up home           => remonte jusqu'à un répertoire home"
     echo "up 4              => remonte de 4 répertoire"
+    echo "down tmp          => descend au premier répertoire tmp"
     echo "zsize file.gz     => taille décompressée de file.gz"
     echo "zerodir dir_name  => trouve les répertoires vides dans dir_name"
     echo "zerofile dir_name => trouve les fichiers vides dans dir_name"
@@ -42,6 +46,21 @@ pop()
    esac
    dirs -v
 }
+
+upd()
+{
+   looked="$1"
+   local p base
+   p="$PWD"
+   base="${p/*\//}"
+   while [ "$base" != "$looked" ]
+   do
+      p=${p%\/*}
+      base="${p/*\//}"
+      [ -n "$base" ] || break
+   done
+   [ -n "$p" ] && cd "$p" || return
+}
 up()
 {
    local number="$1"
@@ -52,6 +71,33 @@ up()
                 done ;;
              *) echo "usage: up {number}" ;;
    esac
+}
+
+down()
+{
+   [ $# -ne 0 ] || return
+   item="$1"
+   local found=$(find . -type d -name "$item" 2>/dev/null)
+   local number=$(echo -n "$found" | nl | wc -l)
+   if [ $number -eq 0 ]
+   then echo "$item not found"
+   elif [ $number -eq 1 ]
+   then cd $(echo "$found" | sed -n "${number}p")
+   else
+      while true
+      do
+         echo "$found" | nl
+         read -p "? " answer
+         case "$answer" in
+             [1-9]) 
+               if [ "$answer" -le $number ]
+                  then cd $(echo "$found" | sed -n "${answer}p") || return
+                  break
+               fi ;;
+            *) echo "please enter a digit" ;;
+         esac
+      done
+   fi
 }
 zsize()
 {
@@ -112,4 +158,7 @@ zdu()
    do
       zsize "$line"
    done; echo 0 ) | awk '{total+=$1}END{print total}' ) $dir"
+}
+mkcd() {
+   mkdir -p "$1" && cd "$1" || return
 }
